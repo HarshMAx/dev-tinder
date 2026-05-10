@@ -53,34 +53,33 @@ const sendRequest = async(req,res,next)=>{
 }
 
 const reviewRequest = async(req,res,next)=>{
-    try{
-        const logInUser = req.user;
-        const {status,requestId} = req.params;
+     try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
 
-        //coorect status checking
-        const allowedStatus = ['accepted','rejected'];
-        if(!allowedStatus.includes(status)){
-            return res.status(400).json({message: "Status not allowed"});
-        }
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({ messaage: "Status not allowed!" });
+      }
 
+      const connectionRequest = await ConnectionRequestModel.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+      if (!connectionRequest) {
+        return res
+          .status(404)
+          .json({ message: "Connection request not found" });
+      }
 
-        const connectionReq = await connectionRequest.findOne({
-            _id : requestId,
-            toUserId : logInUser._id,
-            status : "interested"
-        });
+      connectionRequest.status = status;
 
-        if(!connectionReq){
-            return res.status(404).json({message: "Connection request not found"});
-        }
+      const data = await connectionRequest.save();
 
-        connectionReq.status = status;
-        const data = await connectionReq.save();
-        res.status(200).json({message:"Request" + status, data})
-
-
-    }catch(err){
-        res.status(400).send(err.message);
+      res.json({ message: "Connection request " + status, data });
+    } catch (err) {
+      res.status(400).send("ERROR: " + err.message);
     }
 }
 
