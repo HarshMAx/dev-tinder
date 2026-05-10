@@ -7,12 +7,14 @@ const userSchema = new mongoose.Schema({
     firstName : {
         type : String,
         required : true,
+        index : true,
         minLength : 4,
         maxLength : 15
     },
     lastName : {
         type: String
     },
+
     emailId : {
         type : String,
         required : true,
@@ -28,16 +30,23 @@ const userSchema = new mongoose.Schema({
         type : Number
     },
     gender : {
+       enum: {
+            values: ["male", "female", "other"], // FIXED
+            message: "{VALUE} is not a valid gender"
+        },
+        // validate(value) {
+        //     if(!["male","female","other"].includes(value)){
+        //             throw new Error("Gender data is not valid");
+        //     }
+        // },
         type : String
     },
     phtoUrl : {
+        // type: String,
         type: String,
+        default: "https://dummyimage.com/200x200/000/fff"
         //only work when adding a new user not on update time ok 
-        validate(value) {
-            if(!["male","female","other"].includes(value)){
-                    throw new Error("Gender data is not valid");
-            }
-        }
+        
     },
     about : {
         type: String,
@@ -49,6 +58,8 @@ const userSchema = new mongoose.Schema({
 },{
     timestamps: true
 })
+
+// userSchema.index({emailId : 1}); 
 
 //create a model and always in capital letter
 
